@@ -1,4 +1,10 @@
-const { app, BrowserWindow, Menu, globalShortcut } = require('electron')
+const {
+	app,
+	BrowserWindow,
+	Menu,
+	globalShortcut,
+	ipcMain,
+} = require('electron')
 
 process.env.NODE_ENV = 'development'
 
@@ -12,12 +18,21 @@ function createMainWindow() {
 	mainWindow = new BrowserWindow({
 		//object of options
 		title: 'Image Shrinker',
-		width: 800,
+		width: isDev ? 1200 : 500,
 		height: 600,
 		icon: `${__dirname}/assets/icons/Icon_256x256.png`,
 		resizable: isDev,
 		backgroundColor: 'white',
+		webPreferences: {
+			nodeIntegration: true,
+		},
 	})
+
+	//dev tools show automatically in developer mode
+
+	if (isDev) {
+		mainWindow.webContents.openDevTools()
+	}
 
 	//can load normal URL here too
 	// mainWindow.loadURL(`file://${__dirname}/app/index.html`)
@@ -105,6 +120,10 @@ const menu = [
 		  ]
 		: []),
 ]
+
+ipcMain.on('image:minimize', (e, options) => {
+	console.log(options)
+})
 
 app.on('window-all-closed', () => {
 	if (!isMac) {
